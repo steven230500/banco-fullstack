@@ -1,0 +1,64 @@
+spring:
+  application:
+    name: banco-api
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5433/banco}
+    username: ${DB_USER:banco}
+    password: ${DB_PASSWORD:banco}
+    hikari:
+      maximum-pool-size: ${DB_POOL_SIZE:10}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    connect-retries: 10
+  autoconfigure:
+    # Sin autenticación: evita el usuario en memoria con contraseña generada
+    exclude: org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration
+  threads:
+    virtual:
+      enabled: true
+
+server:
+  port: ${SERVER_PORT:8080}
+  shutdown: graceful
+  error:
+    include-stacktrace: never
+    include-message: never
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: never
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+
+logging:
+  pattern:
+    correlation: "[%X{requestId:-}] "
+  level:
+    com.banco.api: INFO
+
+banco:
+  zona-horaria: ${BANCO_ZONA_HORARIA:America/Guayaquil}
+  movimientos:
+    limite-diario-retiro: ${BANCO_LIMITE_DIARIO_RETIRO:1000.00}
+  cors:
+    allowed-origins: ${BANCO_CORS_ORIGINS:http://localhost:4200,http://localhost:8081}
