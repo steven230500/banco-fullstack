@@ -1,0 +1,109 @@
+<app-page-header [titulo]="esEdicion() ? 'Editar movimiento' : 'Nuevo movimiento'" />
+
+<section class="card">
+  @if (envio.alerta(); as alerta) {
+    <app-alert [mensaje]="alerta.mensaje" [detalles]="alerta.detalles" />
+  }
+  @if (cargando()) {
+    <p class="muted" role="status">Cargando movimiento…</p>
+  }
+  @if (esEdicion()) {
+    <app-alert tipo="info" mensaje="Solo se puede modificar el último movimiento de la cuenta." />
+  }
+
+  <form
+    class="form"
+    [formGroup]="form"
+    (ngSubmit)="guardar()"
+    novalidate
+    data-testid="form-movimiento"
+  >
+    <div class="form__grid">
+      <div class="field field--wide">
+        <label class="field__label" for="numeroCuenta"
+          >Cuenta <span class="req" aria-hidden="true">*</span></label
+        >
+        <select
+          id="numeroCuenta"
+          class="input"
+          formControlName="numeroCuenta"
+          aria-describedby="hint-numeroCuenta error-numeroCuenta"
+          [attr.aria-invalid]="invalido('numeroCuenta')"
+          data-testid="input-numeroCuenta"
+        >
+          <option value="" disabled>Seleccione…</option>
+          @for (cuenta of opcionesCuenta(); track cuenta.numeroCuenta) {
+            <option [value]="cuenta.numeroCuenta">
+              {{ cuenta.numeroCuenta }} · {{ etiquetasCuenta[cuenta.tipoCuenta] }} ·
+              {{ cuenta.clienteNombre }}
+            </option>
+          }
+        </select>
+        <small id="hint-numeroCuenta" class="field__hint" data-testid="saldo-cuenta">
+          @if (cuentaSeleccionada(); as cuenta) {
+            Saldo disponible: {{ cuenta.saldoDisponible | moneda }}
+          } @else {
+            Seleccione la cuenta del movimiento.
+          }
+        </small>
+        <app-field-error [control]="form.controls.numeroCuenta" campo="numeroCuenta" />
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="tipoMovimiento"
+          >Tipo de movimiento <span class="req" aria-hidden="true">*</span></label
+        >
+        <select
+          id="tipoMovimiento"
+          class="input"
+          formControlName="tipoMovimiento"
+          aria-describedby="error-tipoMovimiento"
+          [attr.aria-invalid]="invalido('tipoMovimiento')"
+          data-testid="input-tipoMovimiento"
+        >
+          <option value="" disabled>Seleccione…</option>
+          @for (tipo of tipos; track tipo) {
+            <option [value]="tipo">{{ etiquetasTipo[tipo] }}</option>
+          }
+        </select>
+        <app-field-error [control]="form.controls.tipoMovimiento" campo="tipoMovimiento" />
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="valor"
+          >Valor <span class="req" aria-hidden="true">*</span></label
+        >
+        <input
+          id="valor"
+          class="input"
+          type="number"
+          inputmode="decimal"
+          min="0.01"
+          step="0.01"
+          formControlName="valor"
+          aria-describedby="hint-valor error-valor"
+          [attr.aria-invalid]="invalido('valor')"
+          data-testid="input-valor"
+        />
+        <small id="hint-valor" class="field__hint"
+          >Mayor que 0, hasta 2 decimales. El signo lo asigna el tipo.</small
+        >
+        <app-field-error [control]="form.controls.valor" campo="valor" />
+      </div>
+    </div>
+
+    <div class="form__actions">
+      <a class="btn btn--secondary" routerLink="/movimientos" data-testid="btn-cancelar"
+        >Cancelar</a
+      >
+      <button
+        type="submit"
+        class="btn btn--primary"
+        [disabled]="envio.guardando() || cargando()"
+        data-testid="btn-guardar"
+      >
+        {{ envio.guardando() ? 'Guardando…' : 'Guardar' }}
+      </button>
+    </div>
+  </form>
+</section>

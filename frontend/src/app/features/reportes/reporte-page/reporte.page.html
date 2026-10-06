@@ -1,0 +1,113 @@
+<app-page-header titulo="Reportes" subtitulo="Estado de cuenta por cliente y rango de fechas." />
+
+<section class="card">
+  @if (envio.alerta(); as alerta) {
+    <app-alert [mensaje]="alerta.mensaje" [detalles]="alerta.detalles" />
+  }
+
+  <form
+    class="form"
+    [formGroup]="form"
+    (ngSubmit)="generar()"
+    novalidate
+    data-testid="form-reporte"
+  >
+    <div class="form__grid form__grid--filtros">
+      <div class="field">
+        <label class="field__label" for="clienteId"
+          >Cliente <span class="req" aria-hidden="true">*</span></label
+        >
+        <select
+          id="clienteId"
+          class="input"
+          formControlName="clienteId"
+          aria-describedby="error-clienteId"
+          data-testid="input-clienteId"
+        >
+          <option value="" disabled>Seleccione…</option>
+          @for (cliente of clientes(); track cliente.clienteId) {
+            <option [value]="cliente.clienteId">
+              {{ cliente.nombre }} ({{ cliente.clienteId }})
+            </option>
+          }
+        </select>
+        <app-field-error [control]="form.controls.clienteId" campo="clienteId" />
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="fechaInicio"
+          >Fecha inicio <span class="req" aria-hidden="true">*</span></label
+        >
+        <input
+          id="fechaInicio"
+          class="input"
+          type="date"
+          formControlName="fechaInicio"
+          aria-describedby="error-fechaInicio"
+          data-testid="input-fechaInicio"
+        />
+        <app-field-error [control]="form.controls.fechaInicio" campo="fechaInicio" />
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="fechaFin"
+          >Fecha fin <span class="req" aria-hidden="true">*</span></label
+        >
+        <input
+          id="fechaFin"
+          class="input"
+          type="date"
+          formControlName="fechaFin"
+          aria-describedby="error-fechaFin error-rango"
+          [attr.aria-invalid]="!!errorRango()"
+          data-testid="input-fechaFin"
+        />
+        <app-field-error [control]="form.controls.fechaFin" campo="fechaFin" />
+        @if (errorRango(); as mensaje) {
+          <p id="error-rango" class="field-error" role="alert" data-testid="field-error-rango">
+            {{ mensaje }}
+          </p>
+        }
+      </div>
+    </div>
+
+    <div class="form__actions">
+      <button
+        type="button"
+        class="btn btn--secondary"
+        [disabled]="descargando()"
+        (click)="descargarPdf()"
+        data-testid="btn-descargar-pdf"
+      >
+        {{ descargando() ? 'Descargando…' : 'Descargar PDF' }}
+      </button>
+      <button
+        type="submit"
+        class="btn btn--primary"
+        [disabled]="envio.guardando()"
+        data-testid="btn-generar"
+      >
+        {{ envio.guardando() ? 'Generando…' : 'Generar reporte' }}
+      </button>
+    </div>
+  </form>
+</section>
+
+@if (reporte(); as datos) {
+  <app-reporte-resumen [reporte]="datos" />
+
+  <section class="detalle" aria-labelledby="detalle-titulo">
+    <div class="toolbar">
+      <h2 id="detalle-titulo" class="section-title">Detalle de movimientos</h2>
+      <app-search-box [(termino)]="termino" />
+    </div>
+    <app-data-table
+      titulo="Movimientos del estado de cuenta"
+      testId="tabla-reporte"
+      [columnas]="columnas"
+      [filas]="movimientosFiltrados()"
+      [clave]="clave"
+      mensajeVacio="No hay movimientos en el rango seleccionado."
+    />
+  </section>
+}

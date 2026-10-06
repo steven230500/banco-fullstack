@@ -1,0 +1,82 @@
+<section class="resumen" aria-labelledby="resumen-titulo" data-testid="reporte-resumen">
+  <div class="resumen__header">
+    <h2 id="resumen-titulo" class="section-title">Estado de cuenta de {{ reporte().cliente }}</h2>
+    <p class="muted">
+      Del {{ reporte().fechaInicio | fecha }} al {{ reporte().fechaFin | fecha }} · Usuario
+      {{ reporte().clienteId }}
+    </p>
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <span class="stat__label">Cuentas</span>
+      <span class="stat__value" data-testid="total-cuentas">{{ reporte().cuentas.length }}</span>
+    </div>
+    <div class="stat stat--credito">
+      <span class="stat__label">Total créditos</span>
+      <span class="stat__value" data-testid="total-creditos">{{
+        reporte().totalCreditos | moneda
+      }}</span>
+    </div>
+    <div class="stat stat--debito">
+      <span class="stat__label">Total débitos</span>
+      <span class="stat__value" data-testid="total-debitos">{{
+        reporte().totalDebitos | moneda
+      }}</span>
+    </div>
+    <div class="stat">
+      <span class="stat__label">Movimientos</span>
+      <span class="stat__value" data-testid="total-movimientos">{{
+        reporte().movimientos.length
+      }}</span>
+    </div>
+  </div>
+
+  @if (reporte().cuentas.length > 0) {
+    <ul class="cuentas-grid" aria-label="Resumen por cuenta">
+      @for (cuenta of reporte().cuentas; track cuenta.numeroCuenta) {
+        <li
+          class="cuenta-card"
+          data-testid="reporte-cuenta"
+          [attr.data-row-key]="cuenta.numeroCuenta"
+        >
+          <div class="cuenta-card__header">
+            <div>
+              <span class="cuenta-card__numero">{{ cuenta.numeroCuenta }}</span>
+              <span class="cuenta-card__tipo">{{ etiquetasTipo[cuenta.tipoCuenta] }}</span>
+            </div>
+            <span
+              class="badge"
+              [class.badge--ok]="cuenta.estado"
+              [class.badge--apagado]="!cuenta.estado"
+            >
+              {{ cuenta.estado | estado }}
+            </span>
+          </div>
+          <dl class="cuenta-card__datos">
+            <div>
+              <dt>Saldo inicial</dt>
+              <dd>{{ cuenta.saldoInicial | moneda }}</dd>
+            </div>
+            <div>
+              <dt>Saldo disponible</dt>
+              <dd class="cuenta-card__saldo" data-testid="cuenta-saldo-disponible">
+                {{ cuenta.saldoDisponible | moneda }}
+              </dd>
+            </div>
+            <div>
+              <dt>Total créditos</dt>
+              <dd class="monto--credito">{{ cuenta.totalCreditos | moneda }}</dd>
+            </div>
+            <div>
+              <dt>Total débitos</dt>
+              <dd class="monto--debito">{{ cuenta.totalDebitos | moneda }}</dd>
+            </div>
+          </dl>
+        </li>
+      }
+    </ul>
+  } @else {
+    <p class="muted" data-testid="reporte-sin-cuentas">El cliente no tiene cuentas registradas.</p>
+  }
+</section>

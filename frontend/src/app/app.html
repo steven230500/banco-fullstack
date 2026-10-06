@@ -1,0 +1,39 @@
+<a class="skip-link" href="#contenido">Saltar al contenido</a>
+
+<header class="topbar" data-testid="topbar">
+  <a class="brand" routerLink="/" aria-label="BANCO, ir al inicio" data-testid="brand">
+    <svg class="brand__logo" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+      <path d="M16 3 3 10v3h26v-3L16 3Z" fill="currentColor" />
+      <path
+        d="M6 15h3v9H6zM12 15h3v9h-3zM17 15h3v9h-3zM23 15h3v9h-3zM3 26h26v3H3z"
+        fill="currentColor"
+      />
+    </svg>
+    <span class="brand__text">BANCO</span>
+  </a>
+</header>
+
+<div class="shell">
+  <nav class="sidebar" aria-label="Navegación principal">
+    <ul class="nav">
+      @for (enlace of enlaces; track enlace.ruta) {
+        <li>
+          <a
+            class="nav__link"
+            [routerLink]="enlace.ruta"
+            routerLinkActive="nav__link--active"
+            ariaCurrentWhenActive="page"
+            [attr.data-testid]="enlace.testId"
+            >{{ enlace.etiqueta }}</a
+          >
+        </li>
+      }
+    </ul>
+  </nav>
+
+  <main id="contenido" class="content" tabindex="-1">
+    <router-outlet />
+  </main>
+</div>
+
+<app-toast-container />

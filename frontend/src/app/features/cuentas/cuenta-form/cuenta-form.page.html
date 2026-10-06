@@ -1,0 +1,120 @@
+<app-page-header [titulo]="esEdicion() ? 'Editar cuenta' : 'Nueva cuenta'" />
+
+<section class="card">
+  @if (envio.alerta(); as alerta) {
+    <app-alert [mensaje]="alerta.mensaje" [detalles]="alerta.detalles" />
+  }
+  @if (cargando()) {
+    <p class="muted" role="status">Cargando cuenta…</p>
+  }
+
+  <form class="form" [formGroup]="form" (ngSubmit)="guardar()" novalidate data-testid="form-cuenta">
+    <div class="form__grid">
+      <div class="field">
+        <label class="field__label" for="numeroCuenta"
+          >Número de cuenta <span class="req" aria-hidden="true">*</span></label
+        >
+        <input
+          id="numeroCuenta"
+          class="input"
+          inputmode="numeric"
+          formControlName="numeroCuenta"
+          aria-describedby="hint-numeroCuenta error-numeroCuenta"
+          [attr.aria-invalid]="invalido('numeroCuenta')"
+          data-testid="input-numeroCuenta"
+        />
+        <small id="hint-numeroCuenta" class="field__hint">6 a 20 dígitos.</small>
+        <app-field-error [control]="form.controls.numeroCuenta" campo="numeroCuenta" />
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="clienteId"
+          >Cliente <span class="req" aria-hidden="true">*</span></label
+        >
+        <select
+          id="clienteId"
+          class="input"
+          formControlName="clienteId"
+          aria-describedby="error-clienteId"
+          [attr.aria-invalid]="invalido('clienteId')"
+          data-testid="input-clienteId"
+        >
+          <option value="" disabled>Seleccione…</option>
+          @for (cliente of opcionesCliente(); track cliente.clienteId) {
+            <option [value]="cliente.clienteId">
+              {{ cliente.nombre }} ({{ cliente.clienteId }})
+            </option>
+          }
+        </select>
+        <app-field-error [control]="form.controls.clienteId" campo="clienteId" />
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="tipoCuenta"
+          >Tipo de cuenta <span class="req" aria-hidden="true">*</span></label
+        >
+        <select
+          id="tipoCuenta"
+          class="input"
+          formControlName="tipoCuenta"
+          aria-describedby="error-tipoCuenta"
+          [attr.aria-invalid]="invalido('tipoCuenta')"
+          data-testid="input-tipoCuenta"
+        >
+          <option value="" disabled>Seleccione…</option>
+          @for (tipo of tiposCuenta; track tipo) {
+            <option [value]="tipo">{{ etiquetasTipo[tipo] }}</option>
+          }
+        </select>
+        <app-field-error [control]="form.controls.tipoCuenta" campo="tipoCuenta" />
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="saldoInicial"
+          >Saldo inicial <span class="req" aria-hidden="true">*</span></label
+        >
+        <input
+          id="saldoInicial"
+          class="input"
+          type="number"
+          inputmode="decimal"
+          min="0"
+          step="0.01"
+          formControlName="saldoInicial"
+          aria-describedby="hint-saldoInicial error-saldoInicial"
+          [attr.aria-invalid]="invalido('saldoInicial')"
+          data-testid="input-saldoInicial"
+        />
+        <small id="hint-saldoInicial" class="field__hint">
+          Mayor o igual a 0, hasta 2 decimales.{{
+            esEdicion() ? ' No se puede cambiar si la cuenta ya tiene movimientos.' : ''
+          }}
+        </small>
+        <app-field-error [control]="form.controls.saldoInicial" campo="saldoInicial" />
+      </div>
+
+      <div class="field field--checkbox">
+        <input
+          id="estado"
+          type="checkbox"
+          class="checkbox"
+          formControlName="estado"
+          data-testid="input-estado"
+        />
+        <label for="estado">Cuenta activa</label>
+      </div>
+    </div>
+
+    <div class="form__actions">
+      <a class="btn btn--secondary" routerLink="/cuentas" data-testid="btn-cancelar">Cancelar</a>
+      <button
+        type="submit"
+        class="btn btn--primary"
+        [disabled]="envio.guardando() || cargando()"
+        data-testid="btn-guardar"
+      >
+        {{ envio.guardando() ? 'Guardando…' : 'Guardar' }}
+      </button>
+    </div>
+  </form>
+</section>

@@ -1,0 +1,48 @@
+<app-page-header titulo="Clientes" />
+<app-list-toolbar [(termino)]="lista.termino" rutaNuevo="/clientes/nuevo" />
+
+@if (lista.errorCarga(); as error) {
+  <app-alert [mensaje]="error" />
+}
+
+<app-data-table
+  titulo="Listado de clientes"
+  testId="tabla-clientes"
+  [columnas]="columnas"
+  [filas]="lista.filtradas()"
+  [clave]="clave"
+  [cargando]="lista.cargando()"
+  [acciones]="acciones"
+/>
+
+<ng-template #acciones let-cliente>
+  <a
+    class="btn btn--ghost btn--sm"
+    [routerLink]="['/clientes', cliente.clienteId, 'editar']"
+    [attr.aria-label]="'Editar ' + cliente.nombre"
+    data-testid="btn-editar"
+    >Editar</a
+  >
+  <button
+    type="button"
+    class="btn btn--ghost-danger btn--sm"
+    [attr.aria-label]="'Eliminar ' + cliente.nombre"
+    (click)="lista.pedirEliminacion(cliente)"
+    data-testid="btn-eliminar"
+  >
+    Eliminar
+  </button>
+</ng-template>
+
+<app-confirm-dialog
+  [abierto]="!!lista.porEliminar()"
+  titulo="Eliminar cliente"
+  [mensaje]="
+    '¿Eliminar al cliente ' +
+    (lista.porEliminar()?.nombre ?? '') +
+    '? Esta acción no se puede deshacer.'
+  "
+  [procesando]="lista.eliminando()"
+  (confirmar)="lista.confirmarEliminacion()"
+  (cancelar)="lista.cancelarEliminacion()"
+/>

@@ -1,0 +1,48 @@
+<app-page-header titulo="Cuentas" />
+<app-list-toolbar [(termino)]="lista.termino" rutaNuevo="/cuentas/nuevo" />
+
+@if (lista.errorCarga(); as error) {
+  <app-alert [mensaje]="error" />
+}
+
+<app-data-table
+  titulo="Listado de cuentas"
+  testId="tabla-cuentas"
+  [columnas]="columnas"
+  [filas]="lista.filtradas()"
+  [clave]="clave"
+  [cargando]="lista.cargando()"
+  [acciones]="acciones"
+/>
+
+<ng-template #acciones let-cuenta>
+  <a
+    class="btn btn--ghost btn--sm"
+    [routerLink]="['/cuentas', cuenta.numeroCuenta, 'editar']"
+    [attr.aria-label]="'Editar cuenta ' + cuenta.numeroCuenta"
+    data-testid="btn-editar"
+    >Editar</a
+  >
+  <button
+    type="button"
+    class="btn btn--ghost-danger btn--sm"
+    [attr.aria-label]="'Eliminar cuenta ' + cuenta.numeroCuenta"
+    (click)="lista.pedirEliminacion(cuenta)"
+    data-testid="btn-eliminar"
+  >
+    Eliminar
+  </button>
+</ng-template>
+
+<app-confirm-dialog
+  [abierto]="!!lista.porEliminar()"
+  titulo="Eliminar cuenta"
+  [mensaje]="
+    '¿Eliminar la cuenta ' +
+    (lista.porEliminar()?.numeroCuenta ?? '') +
+    '? Esta acción no se puede deshacer.'
+  "
+  [procesando]="lista.eliminando()"
+  (confirmar)="lista.confirmarEliminacion()"
+  (cancelar)="lista.cancelarEliminacion()"
+/>

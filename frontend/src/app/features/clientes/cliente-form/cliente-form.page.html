@@ -1,0 +1,195 @@
+<app-page-header [titulo]="esEdicion() ? 'Editar cliente' : 'Nuevo cliente'" />
+
+<section class="card">
+  @if (envio.alerta(); as alerta) {
+    <app-alert [mensaje]="alerta.mensaje" [detalles]="alerta.detalles" />
+  }
+  @if (cargando()) {
+    <p class="muted" role="status">Cargando cliente…</p>
+  }
+
+  <form
+    class="form"
+    [formGroup]="form"
+    (ngSubmit)="guardar()"
+    novalidate
+    data-testid="form-cliente"
+  >
+    <div class="form__grid">
+      <div class="field">
+        <label class="field__label" for="clienteId"
+          >Usuario (clienteId) <span class="req" aria-hidden="true">*</span></label
+        >
+        <input
+          id="clienteId"
+          class="input"
+          formControlName="clienteId"
+          autocomplete="username"
+          aria-describedby="hint-clienteId error-clienteId"
+          [attr.aria-invalid]="invalido('clienteId')"
+          data-testid="input-clienteId"
+        />
+        <small id="hint-clienteId" class="field__hint"
+          >3 a 20 caracteres: letras, números, punto, guion o guion bajo.</small
+        >
+        <app-field-error [control]="form.controls.clienteId" campo="clienteId" />
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="nombre"
+          >Nombre <span class="req" aria-hidden="true">*</span></label
+        >
+        <input
+          id="nombre"
+          class="input"
+          formControlName="nombre"
+          autocomplete="name"
+          maxlength="100"
+          aria-describedby="error-nombre"
+          [attr.aria-invalid]="invalido('nombre')"
+          data-testid="input-nombre"
+        />
+        <app-field-error [control]="form.controls.nombre" campo="nombre" />
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="genero"
+          >Género <span class="req" aria-hidden="true">*</span></label
+        >
+        <select
+          id="genero"
+          class="input"
+          formControlName="genero"
+          aria-describedby="error-genero"
+          [attr.aria-invalid]="invalido('genero')"
+          data-testid="input-genero"
+        >
+          <option value="" disabled>Seleccione…</option>
+          @for (genero of generos; track genero) {
+            <option [value]="genero">{{ etiquetasGenero[genero] }}</option>
+          }
+        </select>
+        <app-field-error [control]="form.controls.genero" campo="genero" />
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="edad"
+          >Edad <span class="req" aria-hidden="true">*</span></label
+        >
+        <input
+          id="edad"
+          class="input"
+          type="number"
+          inputmode="numeric"
+          min="0"
+          max="120"
+          step="1"
+          formControlName="edad"
+          aria-describedby="error-edad"
+          [attr.aria-invalid]="invalido('edad')"
+          data-testid="input-edad"
+        />
+        <app-field-error [control]="form.controls.edad" campo="edad" />
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="identificacion"
+          >Identificación <span class="req" aria-hidden="true">*</span></label
+        >
+        <input
+          id="identificacion"
+          class="input"
+          inputmode="numeric"
+          formControlName="identificacion"
+          aria-describedby="hint-identificacion error-identificacion"
+          [attr.aria-invalid]="invalido('identificacion')"
+          data-testid="input-identificacion"
+        />
+        <small id="hint-identificacion" class="field__hint">10 a 13 dígitos.</small>
+        <app-field-error [control]="form.controls.identificacion" campo="identificacion" />
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="telefono"
+          >Teléfono <span class="req" aria-hidden="true">*</span></label
+        >
+        <input
+          id="telefono"
+          class="input"
+          type="tel"
+          inputmode="numeric"
+          autocomplete="tel"
+          formControlName="telefono"
+          aria-describedby="hint-telefono error-telefono"
+          [attr.aria-invalid]="invalido('telefono')"
+          data-testid="input-telefono"
+        />
+        <small id="hint-telefono" class="field__hint">7 a 15 dígitos.</small>
+        <app-field-error [control]="form.controls.telefono" campo="telefono" />
+      </div>
+
+      <div class="field field--wide">
+        <label class="field__label" for="direccion"
+          >Dirección <span class="req" aria-hidden="true">*</span></label
+        >
+        <input
+          id="direccion"
+          class="input"
+          formControlName="direccion"
+          autocomplete="street-address"
+          maxlength="200"
+          aria-describedby="error-direccion"
+          [attr.aria-invalid]="invalido('direccion')"
+          data-testid="input-direccion"
+        />
+        <app-field-error [control]="form.controls.direccion" campo="direccion" />
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="contrasena">
+          Contraseña
+          @if (!esEdicion()) {
+            <span class="req" aria-hidden="true">*</span>
+          }
+        </label>
+        <input
+          id="contrasena"
+          class="input"
+          type="password"
+          autocomplete="new-password"
+          formControlName="contrasena"
+          aria-describedby="hint-contrasena error-contrasena"
+          [attr.aria-invalid]="invalido('contrasena')"
+          data-testid="input-contrasena"
+        />
+        <small id="hint-contrasena" class="field__hint">
+          4 a 72 caracteres.{{ esEdicion() ? ' Déjela vacía para conservar la actual.' : '' }}
+        </small>
+        <app-field-error [control]="form.controls.contrasena" campo="contrasena" />
+      </div>
+
+      <div class="field field--checkbox">
+        <input
+          id="estado"
+          type="checkbox"
+          class="checkbox"
+          formControlName="estado"
+          data-testid="input-estado"
+        />
+        <label for="estado">Cliente activo</label>
+      </div>
+    </div>
+
+    <div class="form__actions">
+      <a class="btn btn--secondary" routerLink="/clientes" data-testid="btn-cancelar">Cancelar</a>
+      <button
+        type="submit"
+        class="btn btn--primary"
+        [disabled]="envio.guardando() || cargando()"
+        data-testid="btn-guardar"
+      >
+        {{ envio.guardando() ? 'Guardando…' : 'Guardar' }}
+      </button>
+    </div>
+  </form>
+</section>

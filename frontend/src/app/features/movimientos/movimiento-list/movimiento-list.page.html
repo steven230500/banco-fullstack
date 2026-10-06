@@ -1,0 +1,51 @@
+<app-page-header
+  titulo="Movimientos"
+  subtitulo="Solo el último movimiento de cada cuenta puede editarse o eliminarse."
+/>
+<app-list-toolbar [(termino)]="lista.termino" rutaNuevo="/movimientos/nuevo" />
+
+@if (lista.errorCarga(); as error) {
+  <app-alert [mensaje]="error" />
+}
+
+<app-data-table
+  titulo="Listado de movimientos"
+  testId="tabla-movimientos"
+  [columnas]="columnas"
+  [filas]="lista.filtradas()"
+  [clave]="clave"
+  [cargando]="lista.cargando()"
+  [acciones]="acciones"
+/>
+
+<ng-template #acciones let-movimiento>
+  <a
+    class="btn btn--ghost btn--sm"
+    [routerLink]="['/movimientos', movimiento.id, 'editar']"
+    [attr.aria-label]="'Editar movimiento ' + movimiento.id"
+    data-testid="btn-editar"
+    >Editar</a
+  >
+  <button
+    type="button"
+    class="btn btn--ghost-danger btn--sm"
+    [attr.aria-label]="'Eliminar movimiento ' + movimiento.id"
+    (click)="lista.pedirEliminacion(movimiento)"
+    data-testid="btn-eliminar"
+  >
+    Eliminar
+  </button>
+</ng-template>
+
+<app-confirm-dialog
+  [abierto]="!!lista.porEliminar()"
+  titulo="Eliminar movimiento"
+  [mensaje]="
+    '¿Eliminar el movimiento de la cuenta ' +
+    (lista.porEliminar()?.numeroCuenta ?? '') +
+    '? El saldo de la cuenta se revertirá.'
+  "
+  [procesando]="lista.eliminando()"
+  (confirmar)="lista.confirmarEliminacion()"
+  (cancelar)="lista.cancelarEliminacion()"
+/>
